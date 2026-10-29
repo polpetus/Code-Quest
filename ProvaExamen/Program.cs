@@ -205,7 +205,7 @@ public class Program
                 Console.WriteLine("----------------------------");
             }
 
-            // Repeat if the input was invalid OR if the user did not choose to exit.
+            // Repeat if the input was invalid OR if the user did not choose to exit
             // Check !isValid first because, after an error, 'option' may
             // still contain 0 from a previous iteration.
         } while (!isValid || option != 0);
