@@ -4,6 +4,7 @@ public class Program
 {
     static void Main()
     {
+        // Allows emojis and accents to be displayed correctly in the terminal.
         Console.OutputEncoding = System.Text.Encoding.UTF8;
         Console.InputEncoding = System.Text.Encoding.UTF8;
 
@@ -60,17 +61,38 @@ public class Program
         const string FinalLevelMessage = "You have unlocked the final level. You can keep the 💎 treasure of the dragon 🐲!";
 
         const string LockedDungeonMessage = "🔒 The dungeon is locked. You must train your wizard first (option 1).";
+        const string LockedMineMessage = "🔒 The mine is locked. You must clear the dungeon first (option 2).";
+
+        const int TotalDigs = 5;
+        const int MinBits = 5;
+        const int MaxBits = 50;
+        const int NoLootChance = 20;
+        const int GoldGpuThreshold = 200;
+        const string MineIntroMessage = "💰 Under the dragon's lair you find a mine full of magic bitcoins...";
+        const string DigMessage = "⛏️ Excavation ";
+        const string NoLootMessage = "Today is not your lucky day, you have found 0 bits 🪙.";
+        const string LootMessageStart = "Today is your lucky day, you have found ";
+        const string LootMessageEnd = " bits 🪙.";
+        const string TotalBitsMessage = "👛 Total bits so far: ";
+        const string FinalBitsMessage = "💰 Total bits looted: ";
+        const string GoldGpuMessage = "You have unlocked the golden GPU ⚜️! Your spells now run at 120 FPS!";
+        const string IntegratedGpuMessage = "Your magic card is still integrated 🪵. Go back to the mine to try your luck!";
 
 
         string WizardName = "";
 
         bool wizardTrained = false;
+        bool dungeonCompleted = false;
+
+        // Sentinel value: -1 is NOT a valid option.
+        // It is needed because the compiler does not guarantee that 'option' is assigned
+        // inside the try block (an exception may occur before the assignment).
         int option = -1;
         bool isValid;
 
         do
         {
-            isValid = false; 
+            isValid = false; // At the start of each iteration, assume the input is NOT valid.
 
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine(MenuTitle);
@@ -82,8 +104,11 @@ public class Program
 
             try
             {
+                // int.Parse can throw: FormatException, OverflowException,
+                // or ArgumentNullException (if ReadLine returns null with Ctrl+Z / Ctrl+D).
                 option = int.Parse(Console.ReadLine());
 
+                // Range validation: if it fails, we throw the exception ourselves.
                 if (option < 0 || option > 3)
                 {
                     throw new ArgumentOutOfRangeException(nameof(option), ErrorRange);
@@ -91,6 +116,7 @@ public class Program
 
 
 
+                // If we reach this point, no exception was thrown: the input is valid.
                 isValid = true;
                 Console.WriteLine(ChosenOption + option);
 
@@ -283,6 +309,7 @@ public class Program
                             Console.WriteLine();
                             Console.ForegroundColor = ConsoleColor.Yellow;
                             Console.WriteLine(FinalLevelMessage);
+                            dungeonCompleted = true;
                             Console.ForegroundColor = ConsoleColor.White;
                         }
                         else
@@ -292,6 +319,68 @@ public class Program
                             Console.WriteLine(DragonRespectMessage);
                             Console.ForegroundColor = ConsoleColor.White;
                         }
+                    }
+
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.WriteLine("------------------------------------------------");
+                    Console.WriteLine("");
+                }
+
+                if (option == 3 && !dungeonCompleted)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine(LockedMineMessage);
+                    Console.ForegroundColor = ConsoleColor.White;
+                }
+                else if (option == 3)
+                {
+                    int totalBits = 0;
+                    var random = new Random();
+
+                    Console.WriteLine();
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    Console.WriteLine(MineIntroMessage);
+                    Console.ForegroundColor = ConsoleColor.White;
+
+                    for (int dig = 1; dig <= TotalDigs; dig++)
+                    {
+                        int luck = random.Next(1, 101);
+                        int bitsFound = 0;
+
+                        Console.WriteLine();
+                        Console.WriteLine("------------------------------------------------");
+                        Console.WriteLine(DigMessage + dig + " / " + TotalDigs);
+
+                        if (luck <= NoLootChance)
+                        {
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.WriteLine(NoLootMessage);
+                            Console.ForegroundColor = ConsoleColor.White;
+                        }
+                        else
+                        {
+                            bitsFound = random.Next(MinBits, MaxBits + 1);
+                            Console.ForegroundColor = ConsoleColor.Green;
+                            Console.WriteLine(LootMessageStart + bitsFound + LootMessageEnd);
+                            Console.ForegroundColor = ConsoleColor.White;
+                        }
+
+                        totalBits += bitsFound;
+                        Console.WriteLine(TotalBitsMessage + totalBits);
+                    }
+
+                    Console.WriteLine();
+                    Console.WriteLine("------------------------------------------------");
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine(FinalBitsMessage + totalBits);
+
+                    if (totalBits > GoldGpuThreshold)
+                    {
+                        Console.WriteLine(GoldGpuMessage);
+                    }
+                    else
+                    {
+                        Console.WriteLine(IntegratedGpuMessage);
                     }
 
                     Console.ForegroundColor = ConsoleColor.White;
