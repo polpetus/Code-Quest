@@ -1,10 +1,9 @@
-﻿        using System;
+﻿using System;
 
 public class Program
 {
     static void Main()
     {
-        // Allows emojis and accents to be displayed correctly in the terminal.
         Console.OutputEncoding = System.Text.Encoding.UTF8;
         Console.InputEncoding = System.Text.Encoding.UTF8;
 
@@ -42,18 +41,36 @@ public class Program
         const string FivthRankMessage = "🧙🏻‍ You have reached the rank of Master of the Arcans!";
         const string FivthRank = "ITB-Wizard the Grey";
 
+        const int TotalDoors = 3;
+        const int MaxAttempts = 3;
+        const int MinCode = 1;
+        const int MaxCode = 5;
+        const string DungeonIntroMessage = "🐉 You enter the Dungeon of the Dragon RAMón the Mighty...";
+        const string DoorMessage = "🚪 Door ";
+        const string DoorCodeHint = "Every door is protected by a digital access code between 1 and 5.";
+        const string AttemptPrompt = "🔑 Enter the access code - attempt ";
+        const string WrongCodeMessage = "❌ Wrong code.";
+        const string AttemptsLeftMessage = " Attempts left: ";
+        const string ErrorCodeNotNumber = "Error: the code must be a number, not text.";
+        const string ErrorCodeTooBig = "Error: that number is too big.";
+        const string ErrorCodeRange = "Error: the code must be between 1 and 5.";
+        const string ErrorCodeNoInput = "Error: no input received.";
+        const string DragonExpelMessage = "The dragon 🐲 has detected your presence and has expelled you from the server!";
+        const string DragonRespectMessage = "The dragon 🐲 respects you. You have unlocked the next level!";
+        const string FinalLevelMessage = "You have unlocked the final level. You can keep the 💎 treasure of the dragon 🐲!";
+
+        const string LockedDungeonMessage = "🔒 The dungeon is locked. You must train your wizard first (option 1).";
+
 
         string WizardName = "";
 
-        // Sentinel value: -1 is NOT a valid option.
-        // It is needed because the compiler does not guarantee that 'option' is assigned
-        // inside the try block (an exception may occur before the assignment).
+        bool wizardTrained = false;
         int option = -1;
         bool isValid;
 
         do
         {
-            isValid = false; // At the start of each iteration, assume the input is NOT valid.
+            isValid = false; 
 
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine(MenuTitle);
@@ -65,11 +82,8 @@ public class Program
 
             try
             {
-                // int.Parse can throw: FormatException, OverflowException,
-                // or ArgumentNullException (if ReadLine returns null with Ctrl+Z / Ctrl+D).
                 option = int.Parse(Console.ReadLine());
 
-                // Range validation: if it fails, we throw the exception ourselves.
                 if (option < 0 || option > 3)
                 {
                     throw new ArgumentOutOfRangeException(nameof(option), ErrorRange);
@@ -77,10 +91,8 @@ public class Program
 
 
 
-                // If we reach this point, no exception was thrown: the input is valid.
                 isValid = true;
                 Console.WriteLine(ChosenOption + option);
-
 
                 if (option == 1)
                 {
@@ -105,11 +117,10 @@ public class Program
 
                         level = totalPoints / 10;
 
-
                         if (level > previousLevel)
                         {
                             Console.WriteLine("");
-                            Console.ForegroundColor = ConsoleColor.Green;   
+                            Console.ForegroundColor = ConsoleColor.Green;
                             Console.WriteLine(LevelUpMessage + WizardName + LevelUpText + level + "!");
                             Console.ForegroundColor = ConsoleColor.White;
                         }
@@ -133,7 +144,6 @@ public class Program
                         Console.WriteLine(RankMessage + "→ " + rank);
                         Console.ForegroundColor = ConsoleColor.Yellow;
                     }
-
 
                     else if (totalPoints >= 20 && totalPoints < 30)
                     {
@@ -175,13 +185,121 @@ public class Program
                         Console.WriteLine(RankMessage + "→ " + rank);
                         Console.ForegroundColor = ConsoleColor.Yellow;
                     }
-                        Console.ForegroundColor = ConsoleColor.White;
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.WriteLine("------------------------------------------------");
+                    Console.WriteLine("");
+                    wizardTrained = true;
+                }
+
+                if (option == 2 && !wizardTrained)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine(LockedDungeonMessage);
+                    Console.ForegroundColor = ConsoleColor.White;
+                }
+                else if (option == 2)
+                {
+                    bool dungeonSurvived = true;
+                    var random = new Random();
+
+                    Console.WriteLine();
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    Console.WriteLine(DungeonIntroMessage);
+                    Console.WriteLine(DoorCodeHint);
+                    Console.ForegroundColor = ConsoleColor.White;
+
+                    for (int door = 1; door <= TotalDoors && dungeonSurvived; door++)
+                    {
+                        int secretCode = random.Next(MinCode, MaxCode + 1);
+                        bool doorOpened = false;
+
+                        Console.WriteLine();
                         Console.WriteLine("------------------------------------------------");
-                        Console.WriteLine("");
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                        Console.WriteLine(DoorMessage + door + " / " + TotalDoors);
+                        Console.ForegroundColor = ConsoleColor.White;
+
+                        for (int attempt = 1; attempt <= MaxAttempts && !doorOpened; attempt++)
+                        {
+                            int guess = -1;
+                            bool isGuessValid = false;
+
+                            do
+                            {
+                                isGuessValid = false;
+                                Console.Write(AttemptPrompt + attempt + "/" + MaxAttempts + ": ");
+
+                                try
+                                {
+                                    guess = int.Parse(Console.ReadLine());
+
+                                    if (guess < MinCode || guess > MaxCode)
+                                    {
+                                        throw new ArgumentOutOfRangeException(nameof(guess), ErrorCodeRange);
+                                    }
+
+                                    isGuessValid = true;
+                                }
+                                catch (FormatException)
+                                {
+                                    Console.WriteLine(ErrorCodeNotNumber);
+                                }
+                                catch (OverflowException)
+                                {
+                                    Console.WriteLine(ErrorCodeTooBig);
+                                }
+                                catch (ArgumentNullException)
+                                {
+                                    Console.WriteLine(ErrorCodeNoInput);
+                                }
+                                catch (ArgumentOutOfRangeException)
+                                {
+                                    Console.WriteLine(ErrorCodeRange);
+                                }
+                            } while (!isGuessValid);
+
+                            if (guess == secretCode)
+                            {
+                                doorOpened = true;
+                            }
+                            else
+                            {
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.WriteLine(WrongCodeMessage + AttemptsLeftMessage + (MaxAttempts - attempt));
+                                Console.ForegroundColor = ConsoleColor.White;
+                            }
+                        }
+
+                        if (!doorOpened)
+                        {
+                            dungeonSurvived = false;
+                            Console.WriteLine();
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.WriteLine(DragonExpelMessage);
+                            Console.ForegroundColor = ConsoleColor.White;
+                        }
+                        else if (door == TotalDoors)
+                        {
+                            Console.WriteLine();
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            Console.WriteLine(FinalLevelMessage);
+                            Console.ForegroundColor = ConsoleColor.White;
+                        }
+                        else
+                        {
+                            Console.WriteLine();
+                            Console.ForegroundColor = ConsoleColor.Green;
+                            Console.WriteLine(DragonRespectMessage);
+                            Console.ForegroundColor = ConsoleColor.White;
+                        }
                     }
 
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.WriteLine("------------------------------------------------");
+                    Console.WriteLine("");
+                }
 
-                
+
             }
             catch (FormatException)              // Text that is not a number: "abc", "3.5", ""
             {
@@ -209,8 +327,8 @@ public class Program
             // Check !isValid first because, after an error, 'option' may
             // still contain 0 from a previous iteration.
         } while (!isValid || option != 0);
-        
 
-        
-    } 
+
+
+    }
 }
