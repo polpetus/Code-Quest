@@ -60,14 +60,6 @@ Sota el cau del drac hi ha una mina plena de bitcoins màgics ⛏️
 
 ---
 
-## ▶️ Com executar-lo
-
-```bash
-dotnet run
-```
-
----
-
 ## 🌿 Branques de Git
 
 - `chapter/trainwizard`
